@@ -2,6 +2,7 @@ package ktssuite
 
 import (
 	ktconf "github.com/ahaostudy/kitextool/conf"
+	"github.com/ahaostudy/kitextool/option/log"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"net"
@@ -14,7 +15,7 @@ type KitexToolSuite struct {
 func (s *KitexToolSuite) Options() (opts []server.Option) {
 	conf := ktconf.GlobalDefaultConf()
 	for _, opt := range s.opts {
-		opt(s)
+		opt.Apply(conf)
 	}
 	if conf.Server.Address != "" {
 		addr, err := net.ResolveTCPAddr("tcp", conf.Server.Address)
@@ -30,6 +31,14 @@ func (s *KitexToolSuite) Options() (opts []server.Option) {
 }
 
 func NewKitexToolSuite(opts ...Option) *KitexToolSuite {
+	opts = append(opts, log.WithLogger())
+	suite := &KitexToolSuite{
+		opts: opts,
+	}
+	return suite
+}
+
+func NewKitexToolEmptySuite(opts ...Option) *KitexToolSuite {
 	suite := &KitexToolSuite{
 		opts: opts,
 	}

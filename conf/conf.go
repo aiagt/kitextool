@@ -1,7 +1,9 @@
 package ktconf
 
-const (
-	limiterConfigName = "config"
+var (
+	dynamicConfigName = "config"
+	globalConf        Conf
+	callbacks         []Callback
 )
 
 type Conf interface {
@@ -11,19 +13,39 @@ type Conf interface {
 }
 
 type ConfigCenter interface {
-	RegisterConfigCallback(dest string, conf Conf)
+	RegisterConfigCallback(dest string, conf Conf, callbacks []Callback)
 }
 
-var globalConf Conf
+type Callback func(conf *Default)
 
 func RegisterGlobalConf(conf Conf) {
 	globalConf = conf
 }
 
 func GlobalConf() Conf {
+	if globalConf == nil {
+		globalConf = &Default{}
+	}
 	return globalConf
 }
 
 func GlobalDefaultConf() *Default {
-	return globalConf.GetDefault()
+	return GlobalConf().GetDefault()
+}
+
+type Option struct {
+	center ConfigCenter
+}
+
+func (o *Option) Apply(conf *Default) {
+	o.center.RegisterConfigCallback(GlobalDefaultConf().Server.Name, GlobalConf(), callbacks)
+}
+
+func (o *Option) OnChange(conf *Default) {
+
+}
+
+// WithDynamicConfig dynamically fetch config from the config center
+func WithDynamicConfig(center ConfigCenter) *Option {
+	return &Option{center: center}
 }

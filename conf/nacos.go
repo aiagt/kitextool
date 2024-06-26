@@ -31,9 +31,9 @@ func NewConfigCenterNacos(opts nacos.Options) *ConfigCenterNacos {
 	return &ConfigCenterNacos{Client: client}
 }
 
-func (c *ConfigCenterNacos) RegisterConfigCallback(dest string, conf Conf) {
+func (c *ConfigCenterNacos) RegisterConfigCallback(dest string, conf Conf, callbacks []Callback) {
 	param, err := c.Client.ServerConfigParam(&nacos.ConfigParamConfig{
-		Category:          limiterConfigName,
+		Category:          dynamicConfigName,
 		ServerServiceName: dest,
 	})
 	if err != nil {
@@ -52,5 +52,8 @@ func (c *ConfigCenterNacos) RegisterConfigCallback(dest string, conf Conf) {
 			return
 		}
 		klog.Infof("conf changed: %+v\n", conf)
+		for _, callback := range callbacks {
+			callback(conf.GetDefault())
+		}
 	}, nacos.GetUniqueID())
 }
