@@ -1,14 +1,15 @@
 package ktregistry
 
 import (
+	"net"
+	"strconv"
+
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	"github.com/cloudwego/kitex/pkg/registry"
 	nacosregistry "github.com/kitex-contrib/registry-nacos/registry"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"net"
-	"strconv"
 )
 
 func NewNacosRegistry() Registry {
@@ -29,7 +30,7 @@ func NewNacosRegistry() Registry {
 			panic(err)
 		}
 
-		var sc = []constant.ServerConfig{
+		sc := []constant.ServerConfig{
 			*constant.NewServerConfig(host, port),
 		}
 		cc := constant.ClientConfig{

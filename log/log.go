@@ -1,15 +1,16 @@
 package ktlog
 
 import (
+	"io"
+	"os"
+	"time"
+
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"io"
-	"os"
-	"time"
 )
 
 const (

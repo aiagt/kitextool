@@ -1,10 +1,11 @@
 package ktssuite
 
 import (
+	"net"
+
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"net"
 )
 
 type KitexToolSuite struct {

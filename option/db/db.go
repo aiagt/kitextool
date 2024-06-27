@@ -2,6 +2,7 @@ package ktdb
 
 import (
 	"errors"
+
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	"github.com/ahaostudy/kitextool/suite/ktssuite"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -9,9 +10,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var (
-	globalDB *gorm.DB
-)
+var globalDB *gorm.DB
 
 func GetDB() (*gorm.DB, error) {
 	if globalDB == nil {

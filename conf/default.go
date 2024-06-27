@@ -1,9 +1,10 @@
 package ktconf
 
 import (
+	"os"
+
 	"github.com/cloudwego/kitex/pkg/klog"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 )
 
 type Default struct {
@@ -22,7 +23,7 @@ func (d *Default) ParseDefault(data string) error {
 
 func (d *Default) LoadDefault(files ...string) {
 	for _, file := range files {
-		content, err := ioutil.ReadFile(file)
+		content, err := os.ReadFile(file)
 		if err != nil {
 			klog.Warnf("read config file failed: %s", err.Error())
 			continue

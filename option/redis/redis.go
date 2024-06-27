@@ -3,6 +3,7 @@ package ktrdb
 import (
 	"context"
 	"errors"
+
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	"github.com/ahaostudy/kitextool/suite/ktssuite"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -26,8 +27,7 @@ func RDB() *redis.Client {
 	return rdb
 }
 
-type Option struct {
-}
+type Option struct{}
 
 func (o Option) Apply(s *ktssuite.KitexToolSuite, conf *ktconf.Default) {
 	reconnect(&conf.Redis)

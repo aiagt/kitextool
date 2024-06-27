@@ -2,12 +2,12 @@ package ktconf
 
 import (
 	"fmt"
+
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"gopkg.in/yaml.v2"
 )
 
-type Parser struct {
-}
+type Parser struct{}
 
 func (Parser) Decode(kind vo.ConfigType, data string, config interface{}) error {
 	switch kind {
