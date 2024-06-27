@@ -15,7 +15,7 @@ var (
 
 func GetDB() (*gorm.DB, error) {
 	if globalDB == nil {
-		return nil, errors.New("the global db is not initialized, please use the `WithDB` option to initialize the global db")
+		return nil, errors.New("the global db is not initialized")
 	}
 	return globalDB, nil
 }
@@ -57,9 +57,10 @@ func (o *Option) OnChange() ktconf.Callback {
 }
 
 func (o *Option) reconnect(conf *ktconf.Default) {
-	klog.Infof("database reconnect, dsn: %s\n", conf.DB.DSN)
-	if conf.DB.DSN != "" {
-		klog.Errorf("failed to connect to the database: dsn is empty")
+	klog.Infof("connecting to database with dsn: %s\n", conf.DB.DSN)
+
+	if conf.DB.DSN == "" {
+		klog.Error("failed to connect to database: dsn is empty")
 		return
 	}
 	db, err := gorm.Open(
@@ -67,7 +68,7 @@ func (o *Option) reconnect(conf *ktconf.Default) {
 		o.gormConf,
 	)
 	if err != nil {
-		klog.Errorf("failed to connect to the database: %s\n", err.Error())
+		klog.Errorf("failed to connect to database: %s\n", err.Error())
 		return
 	}
 	globalDB = db

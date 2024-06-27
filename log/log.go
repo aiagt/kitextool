@@ -73,3 +73,9 @@ func KlogLevel(level ktconf.LogLevel) klog.Level {
 		return klog.LevelInfo
 	}
 }
+
+func Try(err error) {
+	if err != nil {
+		klog.Error(err)
+	}
+}

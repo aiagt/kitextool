@@ -6,11 +6,11 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/vo"
 )
 
-type ConfigCenterNacos struct {
+type NacosConfigCenter struct {
 	nacos.Client
 }
 
-func NewConfigCenterNacos(opts nacos.Options) *ConfigCenterNacos {
+func NewNacosConfigCenter(opts nacos.Options) *NacosConfigCenter {
 	conf := GlobalDefaultConf().ConfigCenter
 	if opts.Address == "" {
 		opts.Address = conf.Host
@@ -28,10 +28,10 @@ func NewConfigCenterNacos(opts nacos.Options) *ConfigCenterNacos {
 	if err != nil {
 		panic(err)
 	}
-	return &ConfigCenterNacos{Client: client}
+	return &NacosConfigCenter{Client: client}
 }
 
-func (c *ConfigCenterNacos) RegisterConfigCallback(dest string, conf Conf) {
+func (c *NacosConfigCenter) RegisterConfigCallback(dest string, conf Conf) {
 	param, err := c.Client.ServerConfigParam(&nacos.ConfigParamConfig{
 		Category:          dynamicConfigName,
 		ServerServiceName: dest,
