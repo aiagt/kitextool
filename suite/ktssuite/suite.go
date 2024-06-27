@@ -2,36 +2,37 @@ package ktssuite
 
 import (
 	ktconf "github.com/ahaostudy/kitextool/conf"
-	"github.com/ahaostudy/kitextool/option/log"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"net"
 )
 
 type KitexToolSuite struct {
-	opts []Option
+	opts    []Option
+	SvrOpts []server.Option
 }
 
-func (s *KitexToolSuite) Options() (opts []server.Option) {
+func (s *KitexToolSuite) Options() []server.Option {
 	conf := ktconf.GlobalDefaultConf()
 	for _, opt := range s.opts {
-		opt.Apply(conf)
+		opt.Apply(s, conf)
+		ktconf.RegisterCallback(opt.OnChange())
 	}
 	if conf.Server.Address != "" {
 		addr, err := net.ResolveTCPAddr("tcp", conf.Server.Address)
 		if err != nil {
 			panic(err)
 		}
-		opts = append(opts, server.WithServiceAddr(addr))
+		s.SvrOpts = append(s.SvrOpts, server.WithServiceAddr(addr))
 	}
 	if conf.Server.Name != "" {
-		opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: conf.Server.Name}))
+		s.SvrOpts = append(s.SvrOpts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: conf.Server.Name}))
 	}
-	return opts
+	return s.SvrOpts
 }
 
 func NewKitexToolSuite(opts ...Option) *KitexToolSuite {
-	opts = append(opts, log.WithLogger())
+	opts = append(opts, WithLogger())
 	suite := &KitexToolSuite{
 		opts: opts,
 	}

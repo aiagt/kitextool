@@ -1,4 +1,4 @@
-package log
+package ktlog
 
 import (
 	ktconf "github.com/ahaostudy/kitextool/conf"
@@ -7,6 +7,8 @@ import (
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"io"
+	"os"
 	"time"
 )
 
@@ -17,10 +19,7 @@ const (
 	DefaultMaxBackups = 50
 )
 
-type Option struct {
-}
-
-func (o Option) Apply(conf *ktconf.Default) {
+func SetLogger(conf *ktconf.Default) {
 	confLog := conf.Log
 	if confLog.FileName == "" {
 		confLog.FileName = DefaultFileName
@@ -37,7 +36,7 @@ func (o Option) Apply(conf *ktconf.Default) {
 
 	logger := kitexlogrus.NewLogger()
 	klog.SetLogger(logger)
-	klog.SetLevel(LogLevel(confLog.Level))
+	klog.SetLevel(KlogLevel(confLog.LogLevel()))
 	asyncWriter := &zapcore.BufferedWriteSyncer{
 		WS: zapcore.AddSync(&lumberjack.Logger{
 			Filename:   confLog.FileName,
@@ -47,35 +46,28 @@ func (o Option) Apply(conf *ktconf.Default) {
 		}),
 		FlushInterval: time.Minute,
 	}
-	klog.SetOutput(asyncWriter)
+	output := io.MultiWriter(os.Stdout, asyncWriter)
+	klog.SetOutput(output)
 	server.RegisterShutdownHook(func() {
 		_ = asyncWriter.Sync()
 	})
 }
 
-func (o Option) OnChange(conf *ktconf.Default) {
-}
-
-// WithLogger set the logger through global config
-func WithLogger() Option {
-	return Option{}
-}
-
-func LogLevel(level string) klog.Level {
+func KlogLevel(level ktconf.LogLevel) klog.Level {
 	switch level {
-	case "trace":
+	case ktconf.LevelTrace:
 		return klog.LevelTrace
-	case "debug":
+	case ktconf.LevelDebug:
 		return klog.LevelDebug
-	case "info":
+	case ktconf.LevelInfo:
 		return klog.LevelInfo
-	case "notice":
+	case ktconf.LevelNotice:
 		return klog.LevelNotice
-	case "warn":
+	case ktconf.LevelWarn:
 		return klog.LevelWarn
-	case "error":
+	case ktconf.LevelError:
 		return klog.LevelError
-	case "fatal":
+	case ktconf.LevelFatal:
 		return klog.LevelFatal
 	default:
 		return klog.LevelInfo

@@ -11,7 +11,7 @@ type Default struct {
 	Log          Log      `yaml:"log"`
 	Registry     Registry `yaml:"registry"`
 	ConfigCenter Center   `yaml:"config_center"`
-	MySQL        MySQL    `yaml:"mysql"`
+	DB           DB       `yaml:"db"`
 	Redis        Redis    `yaml:"redis"`
 	Rabbitmq     Rabbitmq `yaml:"rabbitmq"`
 }
@@ -67,7 +67,7 @@ type Registry struct {
 	Password        string   `yaml:"password"`
 }
 
-type MySQL struct {
+type DB struct {
 	DSN string `yaml:"dsn"`
 }
 
@@ -84,4 +84,37 @@ type Rabbitmq struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Vhost    string `yaml:"vhost"`
+}
+
+type LogLevel int
+
+const (
+	LevelTrace LogLevel = iota
+	LevelDebug
+	LevelInfo
+	LevelNotice
+	LevelWarn
+	LevelError
+	LevelFatal
+)
+
+func (l Log) LogLevel() LogLevel {
+	switch l.Level {
+	case "trace":
+		return LevelTrace
+	case "debug":
+		return LevelDebug
+	case "info":
+		return LevelInfo
+	case "notice":
+		return LevelNotice
+	case "warn":
+		return LevelWarn
+	case "error":
+		return LevelError
+	case "fatal":
+		return LevelFatal
+	default:
+		return LevelInfo
+	}
 }

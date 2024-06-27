@@ -1,8 +1,10 @@
 package ktdb
 
 import (
+	"errors"
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	"github.com/ahaostudy/kitextool/suite/ktssuite"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -11,44 +13,71 @@ var (
 	globalDB *gorm.DB
 )
 
-func DB() *gorm.DB {
+func GetDB() (*gorm.DB, error) {
 	if globalDB == nil {
-		panic("the global db is not initialized, please use the `WithDB` option to initialize the global db.")
+		return nil, errors.New("the global db is not initialized, please use the `WithDB` option to initialize the global db")
 	}
-	return globalDB
+	return globalDB, nil
 }
 
-type Option struct {
-	dial gorm.Dialector
-	opts []DBOption
-}
-
-func (o Option) Apply(conf *ktconf.Default) {
-	gormConf := &gorm.Config{
-		PrepareStmt:            true,
-		SkipDefaultTransaction: true,
-		Logger:                 logger.Default.LogMode(LogLevel()),
-	}
-	for _, opt := range o.opts {
-		opt(conf, gormConf)
-	}
-	var err error
-	globalDB, err = gorm.Open(o.dial, gormConf)
+func DB() *gorm.DB {
+	db, err := GetDB()
 	if err != nil {
 		panic(err)
 	}
+	return db
 }
 
-func (o Option) OnChange(conf *ktconf.Default) {
-}
-
-func WithDB(dial gorm.Dialector, opts ...DBOption) ktssuite.Option {
-	return Option{dial: dial, opts: opts}
-}
+type GormDial func(dsn string) gorm.Dialector
 
 type DBOption func(conf *ktconf.Default, gconf *gorm.Config)
 
-func WithLogger(gormConf *gorm.Config) DBOption {
+type Option struct {
+	dial     GormDial
+	gormConf *gorm.Config
+	opts     []DBOption
+}
+
+func (o *Option) Apply(s *ktssuite.KitexToolSuite, conf *ktconf.Default) {
+	o.gormConf = &gorm.Config{
+		PrepareStmt:            true,
+		SkipDefaultTransaction: true,
+		Logger:                 logger.Default.LogMode(GormLogLevel(conf.Log.LogLevel())),
+	}
+	for _, opt := range o.opts {
+		opt(conf, o.gormConf)
+	}
+	o.reconnect(conf)
+}
+
+func (o *Option) OnChange() ktconf.Callback {
+	return func(conf *ktconf.Default) {
+		o.reconnect(conf)
+	}
+}
+
+func (o *Option) reconnect(conf *ktconf.Default) {
+	klog.Infof("database reconnect, dsn: %s\n", conf.DB.DSN)
+	if conf.DB.DSN != "" {
+		klog.Errorf("failed to connect to the database: dsn is empty")
+		return
+	}
+	db, err := gorm.Open(
+		o.dial(conf.DB.DSN),
+		o.gormConf,
+	)
+	if err != nil {
+		klog.Errorf("failed to connect to the database: %s\n", err.Error())
+		return
+	}
+	globalDB = db
+}
+
+func WithDB(dial GormDial, opts ...DBOption) ktssuite.Option {
+	return &Option{dial: dial, opts: opts}
+}
+
+func WithGormConf(gormConf *gorm.Config) DBOption {
 	return func(conf *ktconf.Default, gconf *gorm.Config) {
 		if gormConf.Logger == nil {
 			gormConf.Logger = gconf.Logger
@@ -57,22 +86,13 @@ func WithLogger(gormConf *gorm.Config) DBOption {
 	}
 }
 
-func LogLevel() logger.LogLevel {
-	level := ktconf.GlobalDefaultConf().Log.Level
+func GormLogLevel(level ktconf.LogLevel) logger.LogLevel {
 	switch level {
-	case "trace":
+	case ktconf.LevelTrace, ktconf.LevelDebug, ktconf.LevelInfo:
 		return logger.Info
-	case "debug":
-		return logger.Info
-	case "info":
-		return logger.Info
-	case "notice":
-		return logger.Info
-	case "warn":
+	case ktconf.LevelNotice, ktconf.LevelWarn:
 		return logger.Warn
-	case "error":
-		return logger.Error
-	case "fatal":
+	case ktconf.LevelError, ktconf.LevelFatal:
 		return logger.Error
 	default:
 		return logger.Warn
