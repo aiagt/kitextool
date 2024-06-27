@@ -51,6 +51,9 @@ func reconnect(conf *ktconf.Redis) {
 		klog.Warnf("failed to connect to redis: %s\n", err.Error())
 		return
 	}
+	if grdb, err := GetRDB(); err == nil {
+		_ = grdb.Close()
+	}
 	globalRDB = rdb
 }
 

@@ -2,7 +2,6 @@ package ktdb
 
 import (
 	"errors"
-
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	"github.com/ahaostudy/kitextool/suite/ktssuite"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -69,6 +68,12 @@ func (o *Option) reconnect(conf *ktconf.Default) {
 	if err != nil {
 		klog.Errorf("failed to connect to database: %s\n", err.Error())
 		return
+	}
+	if gdb, err := GetDB(); err == nil {
+		sqlDB, err := gdb.DB()
+		if err == nil {
+			_ = sqlDB.Close()
+		}
 	}
 	globalDB = db
 }
