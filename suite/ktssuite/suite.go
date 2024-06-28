@@ -9,15 +9,17 @@ import (
 )
 
 type KitexToolSuite struct {
-	opts    []Option
+	Conf    ktconf.Conf
 	SvrOpts []server.Option
+
+	opts      []Option
+	callbacks []ktconf.Callback
 }
 
 func (s *KitexToolSuite) Options() []server.Option {
-	conf := ktconf.GlobalDefaultConf()
+	conf := s.Conf.GetDefault()
 	for _, opt := range s.opts {
 		opt.Apply(s, conf)
-		ktconf.RegisterCallback(opt.OnChange())
 	}
 	if conf.Server.Address != "" {
 		addr, err := net.ResolveTCPAddr("tcp", conf.Server.Address)
@@ -32,16 +34,15 @@ func (s *KitexToolSuite) Options() []server.Option {
 	return s.SvrOpts
 }
 
-func NewKitexToolSuite(opts ...Option) *KitexToolSuite {
-	opts = append(opts, WithLogger())
-	suite := &KitexToolSuite{
-		opts: opts,
-	}
+func NewKitexToolSuite(conf ktconf.Conf, opts ...Option) *KitexToolSuite {
+	suite := NewKitexToolEmptySuite(conf, opts...)
+	suite.opts = append(suite.opts, WithLogger())
 	return suite
 }
 
-func NewKitexToolEmptySuite(opts ...Option) *KitexToolSuite {
+func NewKitexToolEmptySuite(conf ktconf.Conf, opts ...Option) *KitexToolSuite {
 	suite := &KitexToolSuite{
+		Conf: conf,
 		opts: opts,
 	}
 	return suite

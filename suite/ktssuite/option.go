@@ -33,10 +33,14 @@ type ConfigOption struct {
 }
 
 func (o *ConfigOption) Apply(s *KitexToolSuite, conf *ktconf.Default) {
-	ktconf.RegisterCallback(func(conf *ktconf.Default) {
-		klog.Infof("config changed: %+v\n", ktconf.GlobalConf())
-	})
-	o.center.RegisterConfigCallback(conf.Server.Name, ktconf.GlobalConf())
+	logger := func(conf *ktconf.Default) {
+		klog.Infof("config changed: %+v\n", s.Conf)
+	}
+	s.callbacks = append(s.callbacks, logger)
+	for _, opt := range s.opts {
+		s.callbacks = append(s.callbacks, opt.OnChange())
+	}
+	o.center.Register(conf.Server.Name, s.Conf)
 }
 
 // WithLogger set the logger through global config
