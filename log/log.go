@@ -5,10 +5,13 @@ import (
 	"os"
 	"time"
 
+	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
+	kitexslog "github.com/kitex-contrib/obs-opentelemetry/logging/slog"
+	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
+
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
-	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -20,7 +23,28 @@ const (
 	DefaultMaxBackups = 50
 )
 
-func SetLogger(conf *ktconf.Default) {
+type LoggerOption func()
+
+var (
+	WithLogrus LoggerOption = func() {
+		logger := kitexlogrus.NewLogger()
+		klog.SetLogger(logger)
+	}
+	WithZap LoggerOption = func() {
+		logger := kitexzap.NewLogger()
+		klog.SetLogger(logger)
+	}
+	WithSlog LoggerOption = func() {
+		logger := kitexslog.NewLogger()
+		klog.SetLogger(logger)
+	}
+)
+
+func SetLogger(conf *ktconf.Default, opts ...LoggerOption) {
+	for _, opt := range opts {
+		opt()
+	}
+
 	confLog := conf.Log
 	if confLog.FileName == "" {
 		confLog.FileName = DefaultFileName
@@ -35,8 +59,6 @@ func SetLogger(conf *ktconf.Default) {
 		confLog.MaxBackups = DefaultMaxBackups
 	}
 
-	logger := kitexlogrus.NewLogger()
-	klog.SetLogger(logger)
 	klog.SetLevel(KlogLevel(confLog.LogLevel()))
 	asyncWriter := &zapcore.BufferedWriteSyncer{
 		WS: zapcore.AddSync(&lumberjack.Logger{
@@ -72,11 +94,5 @@ func KlogLevel(level ktconf.LogLevel) klog.Level {
 		return klog.LevelFatal
 	default:
 		return klog.LevelInfo
-	}
-}
-
-func Try(err error) {
-	if err != nil {
-		klog.Error(err)
 	}
 }

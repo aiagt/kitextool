@@ -1,10 +1,11 @@
 package ktconf
 
 import (
+	"sync"
+
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/kitex-contrib/config-nacos/nacos"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"sync"
 )
 
 type NacosConfigCenter struct {

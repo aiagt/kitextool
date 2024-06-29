@@ -21,10 +21,11 @@ func (o EmptyOption) OnChange() ktconf.Callback {
 
 type LogOption struct {
 	EmptyOption
+	opts []ktlog.LoggerOption
 }
 
 func (o LogOption) Apply(s *KitexToolSuite, conf *ktconf.Default) {
-	ktlog.SetLogger(conf)
+	ktlog.SetLogger(conf, o.opts...)
 }
 
 type ConfigOption struct {
@@ -44,8 +45,8 @@ func (o *ConfigOption) Apply(s *KitexToolSuite, conf *ktconf.Default) {
 }
 
 // WithLogger set the logger through global config
-func WithLogger() Option {
-	return LogOption{}
+func WithLogger(opts ...ktlog.LoggerOption) Option {
+	return LogOption{opts: opts}
 }
 
 // WithDynamicConfig dynamically fetch config from the config center

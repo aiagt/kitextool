@@ -6,6 +6,8 @@ require (
 	github.com/cloudwego/kitex v0.10.1
 	github.com/kitex-contrib/config-nacos v0.4.0
 	github.com/kitex-contrib/obs-opentelemetry/logging/logrus v0.0.0-20240515092919-1f776656cb66
+	github.com/kitex-contrib/obs-opentelemetry/logging/slog v0.0.0-20240515092919-1f776656cb66
+	github.com/kitex-contrib/obs-opentelemetry/logging/zap v0.0.0-20240515092919-1f776656cb66
 	github.com/kitex-contrib/registry-nacos v0.1.2
 	github.com/nacos-group/nacos-sdk-go v1.1.4
 	github.com/redis/go-redis/v9 v9.5.3

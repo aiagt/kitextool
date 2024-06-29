@@ -1,12 +1,5 @@
 package ktconf
 
-import (
-	"os"
-
-	"github.com/cloudwego/kitex/pkg/klog"
-	"gopkg.in/yaml.v2"
-)
-
 type Default struct {
 	Server       Server   `yaml:"server"`
 	Log          Log      `yaml:"log"`
@@ -18,24 +11,7 @@ type Default struct {
 }
 
 func (d *Default) ParseDefault(data string) error {
-	return yaml.Unmarshal([]byte(data), d)
-}
-
-func (d *Default) LoadDefault(files ...string) {
-	for _, file := range files {
-		content, err := os.ReadFile(file)
-		if err != nil {
-			klog.Warnf("read config file failed: %s", err.Error())
-			continue
-		}
-		if d == nil {
-			*d = Default{}
-		}
-		err = d.ParseDefault(string(content))
-		if err != nil {
-			panic(err)
-		}
-	}
+	return Parse([]byte(data), d)
 }
 
 func (d *Default) GetDefault() *Default {
