@@ -39,9 +39,9 @@ type Center struct {
 }
 
 type Registry struct {
-	RegistryAddress []string `yaml:"registry_address"`
-	Username        string   `yaml:"username"`
-	Password        string   `yaml:"password"`
+	Address  []string `yaml:"address"`
+	Username string   `yaml:"username"`
+	Password string   `yaml:"password"`
 }
 
 type DB struct {

@@ -23,7 +23,7 @@ func LoadFiles(conf Conf, files ...string) {
 	for _, file := range files {
 		content, err := os.ReadFile(file)
 		if err != nil {
-			klog.Warnf("read config file failed: %s", err.Error())
+			klog.Warnf("[KitexTool] read config file failed: %s", err.Error())
 			continue
 		}
 		err = conf.GetDefault().ParseDefault(string(content))

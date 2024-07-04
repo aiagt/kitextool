@@ -4,6 +4,9 @@ import (
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	ktlog "github.com/ahaostudy/kitextool/log"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/kitex/pkg/transmeta"
+	"github.com/cloudwego/kitex/server"
+	"github.com/cloudwego/kitex/transport"
 )
 
 type Option interface {
@@ -44,6 +47,23 @@ func (o *ConfigOption) Apply(s *KitexToolSuite, conf *ktconf.Default) {
 	o.center.Register(conf.Server.Name, s.Conf)
 }
 
+type TransportOption struct {
+	EmptyOption
+	protocol transport.Protocol
+}
+
+func (o *TransportOption) Apply(s *KitexToolSuite, conf *ktconf.Default) {
+	switch o.protocol {
+	case transport.TTHeader:
+	case transport.Framed, transport.TTHeaderFramed:
+		s.SvrOpts = append(s.SvrOpts, server.WithMetaHandler(transmeta.ServerTTHeaderHandler))
+	case transport.GRPC:
+		s.SvrOpts = append(s.SvrOpts, server.WithMetaHandler(transmeta.ServerHTTP2Handler))
+	default:
+		klog.Warnf("[KitexTool] unsupported transport protocol: %v, please set it via Kitex option", o.protocol)
+	}
+}
+
 // WithLogger set the logger through global config
 func WithLogger(opts ...ktlog.LoggerOption) Option {
 	return LogOption{opts: opts}
@@ -52,4 +72,9 @@ func WithLogger(opts ...ktlog.LoggerOption) Option {
 // WithDynamicConfig dynamically fetch config from the config center
 func WithDynamicConfig(center ktconf.ConfigCenter) Option {
 	return &ConfigOption{center: center}
+}
+
+// WithTransport set up the transport protocol and automatically add meta handler
+func WithTransport(protocol transport.Protocol) Option {
+	return &TransportOption{protocol: protocol}
 }

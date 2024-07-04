@@ -14,22 +14,25 @@ import (
 
 func NewNacosRegistry() Registry {
 	return func(conf *ktconf.Registry) registry.Registry {
-		if len(conf.RegistryAddress) == 0 {
-			panic("service registration failed, registry address is empty")
+		if len(conf.Address) == 0 {
+			r, err := nacosregistry.NewDefaultNacosRegistry()
+			if err != nil {
+				panic("service registry failed: " + err.Error())
+			}
+			return r
 		}
 
-		host, portstr, err := net.SplitHostPort(conf.RegistryAddress[0])
+		host, portStr, err := net.SplitHostPort(conf.Address[0])
 		if err != nil {
 			panic(err)
 		}
 		if host == "" {
 			host = "127.0.0.1"
 		}
-		port, err := strconv.ParseUint(portstr, 10, 64)
+		port, err := strconv.ParseUint(portStr, 10, 64)
 		if err != nil {
 			panic(err)
 		}
-
 		sc := []constant.ServerConfig{
 			*constant.NewServerConfig(host, port),
 		}
