@@ -7,9 +7,29 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Parser struct{}
+func Parse(in []byte, out interface{}) error {
+	return yaml.Unmarshal(in, out)
+}
 
-func (Parser) Decode(kind vo.ConfigType, data string, config interface{}) error {
+func ParseConf(data []byte, conf Conf) error {
+	err := conf.ParseServerConf(string(data))
+	if err != nil {
+		return err
+	}
+	err = conf.ParseClientConf(string(data))
+	if err != nil {
+		return err
+	}
+	err = Parse(data, conf)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type NacosParser struct{}
+
+func (NacosParser) Decode(kind vo.ConfigType, data string, config interface{}) error {
 	switch kind {
 	case vo.YAML, vo.JSON:
 		// since YAML is a superset of JSON, it can parse JSON using a YAML parser
@@ -19,12 +39,6 @@ func (Parser) Decode(kind vo.ConfigType, data string, config interface{}) error 
 	}
 }
 
-var defaultParser = Parser{}
-
-func DefaultParser() Parser {
-	return Parser{}
-}
-
-func Parse(in []byte, out interface{}) error {
-	return yaml.Unmarshal(in, out)
+func DefaultNacosParser() NacosParser {
+	return NacosParser{}
 }

@@ -1,38 +1,54 @@
 package ktconf
 
 import (
-	"os"
-
+	"github.com/ahaostudy/kitextool/log"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"os"
 )
 
 var dynamicConfigName = "config"
 
 type Conf interface {
-	ParseDefault(string) error // parse the default config from the string content
-	GetDefault() *Default      // get the default config
+	ParseServerConf(string) error // parse the default config from the string content
+	GetServerConf() *ServerConf   // get the default config
+	ParseClientConf(string) error
+	GetClientConf() *ClientConf
 }
 
-type Callback func(conf *Default)
+type Callback func(conf Conf)
 
 type ConfigCenter interface {
-	Register(dest string, conf Conf, callbacks ...Callback)
+	Init(conf *CenterConf)
+	RegisterCallbacks(callbacks ...Callback)
+	Register(dest string, conf Conf)
 }
 
 func LoadFiles(conf Conf, files ...string) {
 	for _, file := range files {
 		content, err := os.ReadFile(file)
 		if err != nil {
-			klog.Warnf("[KitexTool] read config file failed: %s", err.Error())
+			log.Warnf("read config file failed: %s", err.Error())
 			continue
 		}
-		err = conf.GetDefault().ParseDefault(string(content))
+		err = ParseConf(content, conf)
 		if err != nil {
-			panic(err)
-		}
-		err = Parse(content, conf)
-		if err != nil {
-			panic(err)
+			log.Fatalf("parse config file failed: %s", err.Error())
 		}
 	}
+}
+
+type CenterConf struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+	Key  string `yaml:"key"`
+}
+
+func ApplyDynamicConfig(center ConfigCenter, centerConf *CenterConf, dest string, conf Conf) {
+	logger := func(c Conf) {
+		klog.Infof("config changed: %+v", c)
+	}
+	callbacks := []Callback{logger}
+	center.Init(centerConf)
+	center.RegisterCallbacks(callbacks...)
+	center.Register(dest, conf)
 }

@@ -1,17 +1,18 @@
 package ktconf
 
 import (
+	"github.com/ahaostudy/kitextool/log"
 	"sync"
 
-	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/kitex-contrib/config-nacos/nacos"
-	"github.com/nacos-group/nacos-sdk-go/vo"
 )
 
 type NacosConfigCenter struct {
-	opts   nacos.Options
-	client nacos.Client
-	once   sync.Once
+	opts      nacos.Options
+	client    nacos.Client
+	callbacks []Callback
+
+	once sync.Once
 }
 
 func NewNacosConfigCenter(opts nacos.Options) *NacosConfigCenter {
@@ -26,7 +27,7 @@ func (c *NacosConfigCenter) Client() nacos.Client {
 	return c.client
 }
 
-func (c *NacosConfigCenter) InitClient(conf *Center) {
+func (c *NacosConfigCenter) Init(conf *CenterConf) {
 	c.once.Do(func() {
 		opts := c.opts
 		if conf != nil {
@@ -39,11 +40,10 @@ func (c *NacosConfigCenter) InitClient(conf *Center) {
 			if opts.NamespaceID == "" {
 				opts.NamespaceID = conf.Key
 			}
-			if opts.ConfigParser == nil {
-				opts.ConfigParser = DefaultParser()
-			}
 		}
-
+		if opts.ConfigParser == nil {
+			opts.ConfigParser = DefaultNacosParser()
+		}
 		client, err := nacos.NewClient(opts)
 		if err != nil {
 			panic(err)
@@ -52,9 +52,11 @@ func (c *NacosConfigCenter) InitClient(conf *Center) {
 	})
 }
 
-func (c *NacosConfigCenter) Register(dest string, conf Conf, callbacks ...Callback) {
-	c.InitClient(&conf.GetDefault().ConfigCenter)
+func (c *NacosConfigCenter) RegisterCallbacks(callbacks ...Callback) {
+	c.callbacks = callbacks
+}
 
+func (c *NacosConfigCenter) Register(dest string, conf Conf) {
 	param, err := c.Client().ServerConfigParam(&nacos.ConfigParamConfig{
 		Category:          dynamicConfigName,
 		ServerServiceName: dest,
@@ -63,19 +65,13 @@ func (c *NacosConfigCenter) Register(dest string, conf Conf, callbacks ...Callba
 		panic(err)
 	}
 	c.Client().RegisterConfigCallback(param, func(data string, parser nacos.ConfigParser) {
-		var err error
-		err = conf.ParseDefault(data)
+		err := ParseConf([]byte(data), conf)
 		if err != nil {
-			klog.Errorf("conf parse error, %s", err.Error())
+			log.Errorf("parse conf failed: %s", err.Error())
 			return
 		}
-		err = parser.Decode(vo.YAML, data, conf)
-		if err != nil {
-			klog.Errorf("conf parse error, %s", err.Error())
-			return
-		}
-		for _, callback := range callbacks {
-			callback(conf.GetDefault())
+		for _, callback := range c.callbacks {
+			callback(conf)
 		}
 	}, nacos.GetUniqueID())
 }

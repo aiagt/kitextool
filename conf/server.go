@@ -1,21 +1,31 @@
 package ktconf
 
-type Default struct {
-	Server       Server   `yaml:"server"`
-	Log          Log      `yaml:"log"`
-	Registry     Registry `yaml:"registry"`
-	ConfigCenter Center   `yaml:"config_center"`
-	DB           DB       `yaml:"db"`
-	Redis        Redis    `yaml:"redis"`
-	Rabbitmq     Rabbitmq `yaml:"rabbitmq"`
+type ServerConf struct {
+	Server       Server     `yaml:"server"`
+	Log          Log        `yaml:"log"`
+	Registry     Registry   `yaml:"registry"`
+	ConfigCenter CenterConf `yaml:"config_center"`
+	DB           *DB        `yaml:"db"`
+	DBs          []DB       `yaml:"dbs"`
+	Redis        *Redis     `yaml:"redis"`
+	Redises      []Redis    `yaml:"redises"`
+	Rabbitmq     Rabbitmq   `yaml:"rabbitmq"`
 }
 
-func (d *Default) ParseDefault(data string) error {
+func (d *ServerConf) ParseServerConf(data string) error {
 	return Parse([]byte(data), d)
 }
 
-func (d *Default) GetDefault() *Default {
+func (d *ServerConf) GetServerConf() *ServerConf {
 	return d
+}
+
+func (d *ServerConf) ParseClientConf(data string) error {
+	return nil
+}
+
+func (d *ServerConf) GetClientConf() *ClientConf {
+	return nil
 }
 
 type Server struct {
@@ -30,12 +40,6 @@ type Log struct {
 	MaxSize    int    `yaml:"max_size"`
 	MaxBackups int    `yaml:"max_backups"`
 	MaxAge     int    `yaml:"max_age"`
-}
-
-type Center struct {
-	Host string `yaml:"host"`
-	Port int    `yaml:"port"`
-	Key  string `yaml:"key"`
 }
 
 type Registry struct {

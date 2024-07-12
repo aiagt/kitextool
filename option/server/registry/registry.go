@@ -2,8 +2,7 @@ package ktregistry
 
 import (
 	ktconf "github.com/ahaostudy/kitextool/conf"
-	"github.com/ahaostudy/kitextool/suite/ktssuite"
-	"github.com/cloudwego/kitex/pkg/klog"
+	ktserver "github.com/ahaostudy/kitextool/suite/server"
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"
 )
@@ -11,19 +10,14 @@ import (
 type Registry func(conf *ktconf.Registry) registry.Registry
 
 type Option struct {
+	ktserver.EmptyOption
 	registry Registry
 }
 
-func (o *Option) Apply(s *ktssuite.KitexToolSuite, conf *ktconf.Default) {
+func (o *Option) Apply(s *ktserver.KitexToolSuite, conf *ktconf.ServerConf) {
 	s.SvrOpts = append(s.SvrOpts, server.WithRegistry(o.registry(&conf.Registry)))
 }
 
-func (o *Option) OnChange() ktconf.Callback {
-	return func(conf *ktconf.Default) {
-		klog.Warn("dynamic registration service is not supported yet")
-	}
-}
-
-func WithRegistry(r Registry) ktssuite.Option {
+func WithRegistry(r Registry) ktserver.Option {
 	return &Option{registry: r}
 }

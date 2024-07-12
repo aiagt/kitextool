@@ -1,4 +1,4 @@
-package ktssuite
+package ktserver
 
 import (
 	"net"
@@ -12,12 +12,11 @@ type KitexToolSuite struct {
 	Conf    ktconf.Conf
 	SvrOpts []server.Option
 
-	opts      []Option
-	callbacks []ktconf.Callback
+	opts []Option
 }
 
 func (s *KitexToolSuite) Options() []server.Option {
-	conf := s.Conf.GetDefault()
+	conf := s.Conf.GetServerConf()
 	for _, opt := range s.opts {
 		opt.Apply(s, conf)
 	}
