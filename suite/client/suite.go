@@ -6,7 +6,7 @@ import (
 )
 
 type KitexToolSuite struct {
-	Conf    ktconf.ClientConf
+	Conf    *ktconf.ClientConf
 	CliOpts []client.Option
 
 	opts []Option
@@ -14,17 +14,17 @@ type KitexToolSuite struct {
 
 func (s *KitexToolSuite) Options() []client.Option {
 	for _, opt := range s.opts {
-		opt.Apply(s, &s.Conf)
+		opt.Apply(s, s.Conf)
 	}
 	return s.CliOpts
 }
 
-func NewKitexToolSuite(conf ktconf.ClientConf, opts ...Option) *KitexToolSuite {
+func NewKitexToolSuite(conf *ktconf.ClientConf, opts ...Option) *KitexToolSuite {
 	suite := NewKitexToolEmptySuite(conf, opts...)
 	return suite
 }
 
-func NewKitexToolEmptySuite(conf ktconf.ClientConf, opts ...Option) *KitexToolSuite {
+func NewKitexToolEmptySuite(conf *ktconf.ClientConf, opts ...Option) *KitexToolSuite {
 	suite := &KitexToolSuite{
 		Conf: conf,
 		opts: opts,

@@ -1,0 +1,3 @@
+resolver:
+  address:
+    - ":8848"
