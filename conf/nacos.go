@@ -1,8 +1,9 @@
 package ktconf
 
 import (
-	"github.com/ahaostudy/kitextool/log"
 	"sync"
+
+	"github.com/ahaostudy/kitextool/log"
 
 	"github.com/kitex-contrib/config-nacos/nacos"
 )

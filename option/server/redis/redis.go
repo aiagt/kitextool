@@ -3,6 +3,7 @@ package ktrdb
 import (
 	"context"
 	"fmt"
+
 	"github.com/ahaostudy/kitextool/log"
 
 	ktconf "github.com/ahaostudy/kitextool/conf"

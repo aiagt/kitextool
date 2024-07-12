@@ -1,6 +1,9 @@
 package ktresolver
 
 import (
+	"net"
+	"strconv"
+
 	ktconf "github.com/ahaostudy/kitextool/conf"
 	"github.com/ahaostudy/kitextool/log"
 	"github.com/cloudwego/kitex/pkg/discovery"
@@ -8,8 +11,6 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"net"
-	"strconv"
 )
 
 func NewNacosResolver(conf *ktconf.Resolver) discovery.Resolver {

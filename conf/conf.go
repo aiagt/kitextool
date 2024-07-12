@@ -1,9 +1,9 @@
 package ktconf
 
 import (
-	"github.com/ahaostudy/kitextool/log"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
+
+	"github.com/ahaostudy/kitextool/log"
 )
 
 var dynamicConfigName = "config"
@@ -45,7 +45,7 @@ type CenterConf struct {
 
 func ApplyDynamicConfig(center ConfigCenter, centerConf *CenterConf, dest string, conf Conf) {
 	logger := func(c Conf) {
-		klog.Infof("config changed: %+v", c)
+		log.Infof("config changed: %+v", c)
 	}
 	callbacks := []Callback{logger}
 	center.Init(centerConf)
