@@ -4,7 +4,7 @@ import (
 	"net"
 	"strconv"
 
-	ktconf "github.com/ahaostudy/kitextool/conf"
+	ktconf "github.com/aiagt/kitextool/conf"
 	"github.com/cloudwego/kitex/pkg/registry"
 	nacosregistry "github.com/kitex-contrib/registry-nacos/registry"
 	"github.com/nacos-group/nacos-sdk-go/clients"
@@ -19,6 +19,7 @@ func NewNacosRegistry() Registry {
 			if err != nil {
 				panic("service registry failed: " + err.Error())
 			}
+
 			return r
 		}
 
@@ -26,13 +27,16 @@ func NewNacosRegistry() Registry {
 		if err != nil {
 			panic(err)
 		}
+
 		if host == "" {
 			host = "127.0.0.1"
 		}
+
 		port, err := strconv.ParseUint(portStr, 10, 64)
 		if err != nil {
 			panic(err)
 		}
+
 		sc := []constant.ServerConfig{
 			*constant.NewServerConfig(host, port),
 		}
@@ -48,6 +52,7 @@ func NewNacosRegistry() Registry {
 				ServerConfigs: sc,
 			},
 		)
+
 		return nacosregistry.NewNacosRegistry(cli)
 	}
 }

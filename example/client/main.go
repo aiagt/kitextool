@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 
-	ktconf "github.com/ahaostudy/kitextool/conf"
-	echo "github.com/ahaostudy/kitextool/example/kitex_gen/echo/echoservice"
-	ktresolver "github.com/ahaostudy/kitextool/option/client/resolver"
-	ktclient "github.com/ahaostudy/kitextool/suite/client"
+	ktconf "github.com/aiagt/kitextool/conf"
+	echo "github.com/aiagt/kitextool/example/kitex_gen/echo/echoservice"
+	ktresolver "github.com/aiagt/kitextool/option/client/resolver"
+	ktclient "github.com/aiagt/kitextool/suite/client"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
@@ -30,10 +30,12 @@ func main() {
 
 	ctx := context.Background()
 	req := "hello"
+
 	resp, err := cli.Echo(ctx, req)
 	if err != nil {
 		klog.CtxErrorf(ctx, "%v", err.Error())
 		return
 	}
+
 	klog.Infof("resp: %v", resp)
 }

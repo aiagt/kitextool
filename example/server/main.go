@@ -5,12 +5,12 @@ import (
 	"log"
 	"time"
 
-	ktconf "github.com/ahaostudy/kitextool/conf"
-	echo "github.com/ahaostudy/kitextool/example/kitex_gen/echo/echoservice"
-	ktdb "github.com/ahaostudy/kitextool/option/server/db"
-	ktrdb "github.com/ahaostudy/kitextool/option/server/redis"
-	ktregistry "github.com/ahaostudy/kitextool/option/server/registry"
-	ktserver "github.com/ahaostudy/kitextool/suite/server"
+	ktconf "github.com/aiagt/kitextool/conf"
+	echo "github.com/aiagt/kitextool/example/kitex_gen/echo/echoservice"
+	ktdb "github.com/aiagt/kitextool/option/server/db"
+	ktrdb "github.com/aiagt/kitextool/option/server/redis"
+	ktregistry "github.com/aiagt/kitextool/option/server/registry"
+	ktserver "github.com/aiagt/kitextool/suite/server"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
 )
@@ -69,10 +69,12 @@ func (s *EchoServiceImpl) Echo(ctx context.Context, message string) (resp string
 	if err != nil {
 		return "", err
 	}
+
 	err = redisExample(ctx)
 	if err != nil {
 		return "", err
 	}
+
 	return message, nil
 }
 
@@ -95,12 +97,16 @@ func dbExample(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	user := new(User)
+
 	err = ktdb.DB().WithContext(ctx).First(user).Error
 	if err != nil {
 		return err
 	}
+
 	klog.CtxInfof(ctx, "[DB] result: %+v", user)
+
 	return nil
 }
 
@@ -111,10 +117,13 @@ func redisExample(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	result := ktrdb.RDB().Get(ctx, "user:1")
 	if err = result.Err(); err != nil {
 		return err
 	}
+
 	klog.CtxInfof(ctx, "[Redis] result: %s", result.String())
+
 	return nil
 }

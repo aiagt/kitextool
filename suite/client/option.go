@@ -1,8 +1,8 @@
 package ktclient
 
 import (
-	ktconf "github.com/ahaostudy/kitextool/conf"
-	"github.com/ahaostudy/kitextool/log"
+	ktconf "github.com/aiagt/kitextool/conf"
+	"github.com/aiagt/kitextool/log"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/transport"
@@ -27,6 +27,7 @@ func (o *TransportOption) Apply(s *KitexToolSuite, conf *ktconf.ClientConf) {
 		log.Warnf("unsupported transport protocol: %v, please set it via Kitex option", o.protocol)
 		return
 	}
+
 	s.CliOpts = append(s.CliOpts, client.WithTransportProtocol(o.protocol))
 }
 

@@ -1,13 +1,13 @@
-module github.com/ahaostudy/kitextool/example
+module github.com/aiagt/kitextool/example
 
-go 1.22.3
+go 1.21.6
 
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
-replace github.com/ahaostudy/kitextool => ../
+replace github.com/aiagt/kitextool => ../
 
 require (
-	github.com/ahaostudy/kitextool v0.0.0-00010101000000-000000000000
+	github.com/aiagt/kitextool v0.0.0-00010101000000-000000000000
 	github.com/apache/thrift v0.16.0
 	github.com/cloudwego/kitex v0.10.1
 )

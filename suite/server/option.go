@@ -1,9 +1,9 @@
 package ktserver
 
 import (
-	ktconf "github.com/ahaostudy/kitextool/conf"
-	"github.com/ahaostudy/kitextool/log"
-	ktlog "github.com/ahaostudy/kitextool/option/server/log"
+	ktconf "github.com/aiagt/kitextool/conf"
+	"github.com/aiagt/kitextool/log"
+	ktlog "github.com/aiagt/kitextool/option/server/log"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
 	"github.com/cloudwego/kitex/transport"
@@ -54,6 +54,7 @@ func (o *ConfigOption) Apply(s *KitexToolSuite, conf *ktconf.ServerConf) {
 	for _, opt := range s.opts {
 		callbacks = append(callbacks, confCallback(opt.Callback()))
 	}
+
 	ktconf.ApplyDynamicConfig(o.center, &conf.GetServerConf().ConfigCenter, conf.Server.Name, s.Conf)
 }
 

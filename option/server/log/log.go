@@ -9,7 +9,7 @@ import (
 	kitexslog "github.com/kitex-contrib/obs-opentelemetry/logging/slog"
 	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
 
-	ktconf "github.com/ahaostudy/kitextool/conf"
+	ktconf "github.com/aiagt/kitextool/conf"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
 	"go.uber.org/zap/zapcore"
@@ -49,12 +49,15 @@ func SetLogger(conf *ktconf.ServerConf, opts ...LoggerOption) {
 	if confLog.FileName == "" {
 		confLog.FileName = DefaultFileName
 	}
+
 	if confLog.MaxSize == 0 {
 		confLog.MaxSize = DefaultMaxSize
 	}
+
 	if confLog.MaxAge == 0 {
 		confLog.MaxAge = DefaultMaxAge
 	}
+
 	if confLog.MaxBackups == 0 {
 		confLog.MaxBackups = DefaultMaxBackups
 	}

@@ -2,7 +2,7 @@
 package echoservice
 
 import (
-	echo "github.com/ahaostudy/kitextool/example/kitex_gen/echo"
+	echo "github.com/aiagt/kitextool/example/kitex_gen/echo"
 	server "github.com/cloudwego/kitex/server"
 )
 

@@ -3,7 +3,7 @@ package ktconf
 import (
 	"os"
 
-	"github.com/ahaostudy/kitextool/log"
+	"github.com/aiagt/kitextool/log"
 )
 
 var dynamicConfigName = "config"
@@ -30,6 +30,7 @@ func LoadFiles(conf Conf, files ...string) {
 			log.Warnf("read config file failed: %s", err.Error())
 			continue
 		}
+
 		err = ParseConf(content, conf)
 		if err != nil {
 			log.Fatalf("parse config file failed: %s", err.Error())
@@ -48,6 +49,7 @@ func ApplyDynamicConfig(center ConfigCenter, centerConf *CenterConf, dest string
 		log.Infof("config changed: %+v", c)
 	}
 	callbacks := []Callback{logger}
+
 	center.Init(centerConf)
 	center.RegisterCallbacks(callbacks...)
 	center.Register(dest, conf)

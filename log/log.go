@@ -18,6 +18,7 @@ func WithPrefixList(v ...interface{}) []interface{} {
 	if len(v) > 0 {
 		v[0] = WithPrefix(v[0])
 	}
+
 	return v
 }
 

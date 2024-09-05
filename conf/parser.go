@@ -16,14 +16,17 @@ func ParseConf(data []byte, conf Conf) error {
 	if err != nil {
 		return err
 	}
+
 	err = conf.ParseClientConf(string(data))
 	if err != nil {
 		return err
 	}
+
 	err = Parse(data, conf)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

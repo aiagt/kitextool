@@ -1,31 +1,54 @@
 package ktdb
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
-	ktconf "github.com/ahaostudy/kitextool/conf"
-	"github.com/ahaostudy/kitextool/log"
-	ktserver "github.com/ahaostudy/kitextool/suite/server"
+	ktconf "github.com/aiagt/kitextool/conf"
+	"github.com/aiagt/kitextool/log"
+	ktserver "github.com/aiagt/kitextool/suite/server"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-var dbs []*gorm.DB
+var (
+	dbs           map[string]*gorm.DB
+	defaultDBName string
+)
 
-func GetDB(id int) (*gorm.DB, error) {
-	if len(dbs) <= id {
-		return nil, fmt.Errorf("the db-%d is not exists", id)
+func GetDB(name string) (*gorm.DB, error) {
+	if db, ok := dbs[name]; ok {
+		return nil, fmt.Errorf("the db-%s is not exists", name)
+	} else {
+		return db, nil
 	}
-	return dbs[id], nil
+}
+
+func GetDBCtx(ctx context.Context, name string) (*gorm.DB, error) {
+	db, err := GetDB(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return db.WithContext(ctx), nil
 }
 
 func DB() *gorm.DB {
-	db, err := GetDB(0)
+	db, err := GetDB(defaultDBName)
 	if err != nil {
 		panic(err)
 	}
+
 	return db
+}
+
+func DBCtx(ctx context.Context) *gorm.DB {
+	return DB().WithContext(ctx)
+}
+
+func SetDefaultDBName(name string) {
+	defaultDBName = name
 }
 
 type Option struct {
@@ -44,20 +67,25 @@ func (o *Option) Apply(s *ktserver.KitexToolSuite, conf *ktconf.ServerConf) {
 	for _, opt := range o.opts {
 		opt(conf, o.gormConf)
 	}
+
 	confDBs := conf.DBs
 	if len(confDBs) == 0 {
 		if conf.DB == nil {
 			log.Fatalf("the database config is empty")
 		}
-		confDBs = append(confDBs, *conf.DB)
+
+		confDBs = []*ktconf.DB{{DSN: conf.DB.DSN}}
 	}
-	dbs = make([]*gorm.DB, len(confDBs))
-	for i, confDB := range confDBs {
+
+	dbs = make(map[string]*gorm.DB, len(confDBs))
+
+	for _, confDB := range confDBs {
 		db, err := o.connect(confDB.DSN)
 		if err != nil {
 			log.Fatalf("failed to connect to database with DSN: %s", confDB.DSN)
 		}
-		dbs[i] = db
+
+		dbs[confDB.Name] = db
 	}
 }
 
@@ -65,10 +93,12 @@ func (o *Option) connect(dsn string) (*gorm.DB, error) {
 	if dsn == "" {
 		return nil, errors.New("dsn is empty")
 	}
+
 	db, err := gorm.Open(o.dial(dsn), o.gormConf)
 	if err != nil {
 		return nil, err
 	}
+
 	return db, nil
 }
 
@@ -98,6 +128,7 @@ func WithGormConf(gormConf *gorm.Config) DBOption {
 		if gormConf.Logger == nil {
 			gormConf.Logger = gconf.Logger
 		}
+
 		*gconf = *gormConf
 	}
 }

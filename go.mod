@@ -1,6 +1,8 @@
-module github.com/ahaostudy/kitextool
+module github.com/aiagt/kitextool
 
-go 1.22.3
+go 1.21.6
+
+replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
 require (
 	github.com/cloudwego/kitex v0.10.1

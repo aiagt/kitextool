@@ -1,8 +1,8 @@
 package ktresolver
 
 import (
-	ktconf "github.com/ahaostudy/kitextool/conf"
-	ktclient "github.com/ahaostudy/kitextool/suite/client"
+	ktconf "github.com/aiagt/kitextool/conf"
+	ktclient "github.com/aiagt/kitextool/suite/client"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/discovery"
 )

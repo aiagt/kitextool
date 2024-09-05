@@ -1,8 +1,8 @@
 package ktregistry
 
 import (
-	ktconf "github.com/ahaostudy/kitextool/conf"
-	ktserver "github.com/ahaostudy/kitextool/suite/server"
+	ktconf "github.com/aiagt/kitextool/conf"
+	ktserver "github.com/aiagt/kitextool/suite/server"
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"
 )

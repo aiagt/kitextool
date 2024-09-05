@@ -1,7 +1,7 @@
 package ktclient
 
 import (
-	ktconf "github.com/ahaostudy/kitextool/conf"
+	ktconf "github.com/aiagt/kitextool/conf"
 	"github.com/cloudwego/kitex/client"
 )
 
@@ -16,6 +16,7 @@ func (s *KitexToolSuite) Options() []client.Option {
 	for _, opt := range s.opts {
 		opt.Apply(s, s.Conf)
 	}
+
 	return s.CliOpts
 }
 
@@ -29,5 +30,6 @@ func NewKitexToolEmptySuite(conf *ktconf.ClientConf, opts ...Option) *KitexToolS
 		Conf: conf,
 		opts: opts,
 	}
+
 	return suite
 }

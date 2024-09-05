@@ -6,9 +6,9 @@ type ServerConf struct {
 	Registry     Registry   `yaml:"registry"`
 	ConfigCenter CenterConf `yaml:"config_center"`
 	DB           *DB        `yaml:"db"`
-	DBs          []DB       `yaml:"dbs"`
+	DBs          []*DB      `yaml:"dbs"`
 	Redis        *Redis     `yaml:"redis"`
-	Redises      []Redis    `yaml:"redises"`
+	Redises      []*Redis   `yaml:"redises"`
 	Rabbitmq     Rabbitmq   `yaml:"rabbitmq"`
 }
 
@@ -49,10 +49,12 @@ type Registry struct {
 }
 
 type DB struct {
-	DSN string `yaml:"dsn"`
+	Name string `yaml:"name"`
+	DSN  string `yaml:"dsn"`
 }
 
 type Redis struct {
+	Name     string `yaml:"name"`
 	Address  string `yaml:"address"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
