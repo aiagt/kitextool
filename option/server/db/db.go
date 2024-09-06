@@ -19,9 +19,9 @@ var (
 
 func GetDB(name string) (*gorm.DB, error) {
 	if db, ok := dbs[name]; ok {
-		return nil, fmt.Errorf("the db-%s is not exists", name)
-	} else {
 		return db, nil
+	} else {
+		return nil, fmt.Errorf("the db-%s is not exists", name)
 	}
 }
 
@@ -74,7 +74,8 @@ func (o *Option) Apply(s *ktserver.KitexToolSuite, conf *ktconf.ServerConf) {
 			log.Fatalf("the database config is empty")
 		}
 
-		confDBs = []*ktconf.DB{{DSN: conf.DB.DSN}}
+		defaultDBName = conf.DB.Name
+		confDBs = []*ktconf.DB{conf.DB}
 	}
 
 	dbs = make(map[string]*gorm.DB, len(confDBs))
