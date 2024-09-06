@@ -17,10 +17,10 @@ var (
 )
 
 func GetRDB(name string) (*redis.Client, error) {
-	if rdb, ok := rdbs[name]; !ok {
-		return nil, fmt.Errorf("the rdb-%s is not exists", name)
-	} else {
+	if rdb, ok := rdbs[name]; ok {
 		return rdb, nil
+	} else {
+		return nil, fmt.Errorf("the rdb-%s is not exists", name)
 	}
 }
 
@@ -49,6 +49,7 @@ func (o Option) Apply(s *ktserver.KitexToolSuite, conf *ktconf.ServerConf) {
 			log.Fatalf("the redis config is empty")
 		}
 
+		defaultRDBName = conf.Redis.Name
 		confRedises = []*ktconf.Redis{conf.Redis}
 	}
 
