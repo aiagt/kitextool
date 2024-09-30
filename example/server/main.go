@@ -5,11 +5,12 @@ import (
 	"log"
 	"time"
 
+	ktregistry "github.com/aiagt/kitextool/option/server/registry"
+
 	ktconf "github.com/aiagt/kitextool/conf"
 	echo "github.com/aiagt/kitextool/example/kitex_gen/echo/echoservice"
 	ktdb "github.com/aiagt/kitextool/option/server/db"
 	ktrdb "github.com/aiagt/kitextool/option/server/redis"
-	ktregistry "github.com/aiagt/kitextool/option/server/registry"
 	ktserver "github.com/aiagt/kitextool/suite/server"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
@@ -33,7 +34,7 @@ var conf = new(ktconf.ServerConf)
 
 func init() {
 	// Load configuration content from a specified files
-	ktconf.LoadFiles(conf, "conf.yaml")
+	ktconf.LoadFiles(conf, "conf.yaml", "server/conf.yaml")
 }
 
 func main() {
@@ -44,7 +45,7 @@ func main() {
 			// Global configuration of KitexTool suite
 			conf,
 			// Use nacos dynamic configuration, the default dataId is `{ServiceName}:config`
-			// ktserver.WithDynamicConfig(ktconf.NewNacosConfigCenter(nacos.Options{})),
+			// ktserver.WithDynamicConfig(ktcenter.WithNacosConfigCenter(nil)),
 			// Use nacos as the registry
 			ktregistry.WithRegistry(ktregistry.NewNacosRegistry()),
 			// Introduce MySQL database into the project

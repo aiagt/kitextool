@@ -2,11 +2,8 @@ package ktserver
 
 import (
 	ktconf "github.com/aiagt/kitextool/conf"
-	"github.com/aiagt/kitextool/log"
+	ktcenter "github.com/aiagt/kitextool/conf/center"
 	ktlog "github.com/aiagt/kitextool/option/server/log"
-	"github.com/cloudwego/kitex/pkg/transmeta"
-	"github.com/cloudwego/kitex/server"
-	"github.com/cloudwego/kitex/transport"
 )
 
 type Option interface {
@@ -16,7 +13,7 @@ type Option interface {
 
 type ServerCallback func(conf *ktconf.ServerConf)
 
-func confCallback(callback ServerCallback) ktconf.Callback {
+func confCallback(callback ServerCallback) ktcenter.Callback {
 	return func(conf ktconf.Conf) {
 		callback(conf.GetServerConf())
 	}
@@ -46,41 +43,19 @@ func WithLogger(opts ...ktlog.LoggerOption) Option {
 
 type ConfigOption struct {
 	EmptyOption
-	center ktconf.ConfigCenter
+	center ktcenter.ConfigCenter
 }
 
 func (o *ConfigOption) Apply(s *KitexToolSuite, conf *ktconf.ServerConf) {
-	var callbacks []ktconf.Callback
+	var callbacks []ktcenter.Callback
 	for _, opt := range s.opts {
 		callbacks = append(callbacks, confCallback(opt.Callback()))
 	}
 
-	ktconf.ApplyDynamicConfig(o.center, &conf.GetServerConf().ConfigCenter, conf.Server.Name, s.Conf)
+	ktcenter.ApplyDynamicConfig(o.center, &conf.GetServerConf().ConfigCenter, conf.Server.Name, s.Conf)
 }
 
 // WithDynamicConfig dynamically fetch config from the config center
-func WithDynamicConfig(center ktconf.ConfigCenter) Option {
+func WithDynamicConfig(center ktcenter.ConfigCenter) Option {
 	return &ConfigOption{center: center}
-}
-
-type TransportOption struct {
-	EmptyOption
-	protocol transport.Protocol
-}
-
-func (o *TransportOption) Apply(s *KitexToolSuite, conf *ktconf.ServerConf) {
-	switch o.protocol {
-	case transport.TTHeader:
-	case transport.Framed, transport.TTHeaderFramed:
-		s.SvrOpts = append(s.SvrOpts, server.WithMetaHandler(transmeta.ServerTTHeaderHandler))
-	case transport.GRPC:
-		s.SvrOpts = append(s.SvrOpts, server.WithMetaHandler(transmeta.ServerHTTP2Handler))
-	default:
-		log.Warnf("unsupported transport protocol: %v, please set it via Kitex option", o.protocol)
-	}
-}
-
-// WithTransport set up the transport protocol and automatically add meta handler
-func WithTransport(protocol transport.Protocol) Option {
-	return &TransportOption{protocol: protocol}
 }

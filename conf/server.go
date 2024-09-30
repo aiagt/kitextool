@@ -48,6 +48,12 @@ type Registry struct {
 	Password string   `yaml:"password"`
 }
 
+type CenterConf struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+	Key  string `yaml:"key"`
+}
+
 type DB struct {
 	Name string `yaml:"name"`
 	DSN  string `yaml:"dsn"`
