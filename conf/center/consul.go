@@ -2,10 +2,11 @@ package ktcenter
 
 import (
 	"fmt"
+	"sync"
+
 	ktconf "github.com/aiagt/kitextool/conf"
 	"github.com/aiagt/kitextool/utils"
 	"github.com/cloudwego/kitex/server"
-	"sync"
 
 	"github.com/aiagt/kitextool/log"
 

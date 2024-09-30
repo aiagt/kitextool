@@ -2,8 +2,9 @@ package ktlog
 
 import (
 	"fmt"
-	ktconf "github.com/aiagt/kitextool/conf"
 	"path/filepath"
+
+	ktconf "github.com/aiagt/kitextool/conf"
 )
 
 type FilepathOption func(conf *ktconf.ServerConf) string

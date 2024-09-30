@@ -6,6 +6,7 @@ func (m *MultiClientConf) ParseClientConf(data string) error {
 	if m == nil {
 		*m = make(MultiClientConf)
 	}
+
 	return Parse([]byte(data), m)
 }
 

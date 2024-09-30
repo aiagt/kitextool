@@ -2,6 +2,7 @@ package ktcenter
 
 import (
 	"fmt"
+
 	ktconf "github.com/aiagt/kitextool/conf"
 )
 

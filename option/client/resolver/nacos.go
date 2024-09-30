@@ -40,6 +40,7 @@ func NewNacosResolver(conf *ktconf.Resolver) []discovery.Resolver {
 			Username:            conf.Username,
 			Password:            conf.Password,
 		}
+
 		cli, err := clients.NewNamingClient(
 			vo.NacosClientParam{
 				ClientConfig:  &cc,

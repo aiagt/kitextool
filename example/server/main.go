@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	ktcenter "github.com/aiagt/kitextool/conf/center"
 	"log"
 	"time"
+
+	ktcenter "github.com/aiagt/kitextool/conf/center"
 
 	ktregistry "github.com/aiagt/kitextool/option/server/registry"
 

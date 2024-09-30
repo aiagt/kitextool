@@ -1,11 +1,12 @@
 package ktcenter
 
 import (
+	"sync"
+
 	ktconf "github.com/aiagt/kitextool/conf"
 	"github.com/aiagt/kitextool/utils"
 	"github.com/cloudwego/kitex/server"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"sync"
 
 	"github.com/aiagt/kitextool/log"
 

@@ -1,9 +1,10 @@
 package ktregistry
 
 import (
-	"github.com/aiagt/kitextool/log"
 	"net"
 	"strconv"
+
+	"github.com/aiagt/kitextool/log"
 
 	ktconf "github.com/aiagt/kitextool/conf"
 	"github.com/cloudwego/kitex/pkg/registry"
@@ -41,6 +42,7 @@ func NewNacosRegistry() Registry {
 				Username:            conf.Username,
 				Password:            conf.Password,
 			}
+
 			cli, err := clients.NewNamingClient(
 				vo.NacosClientParam{
 					ClientConfig:  &cc,
