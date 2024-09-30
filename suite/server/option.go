@@ -52,6 +52,7 @@ func (o *ConfigOption) Apply(s *KitexToolSuite, conf *ktconf.ServerConf) {
 		callbacks = append(callbacks, confCallback(opt.Callback()))
 	}
 
+	o.center.RegisterCallbacks(callbacks...)
 	ktcenter.ApplyDynamicConfig(o.center, &conf.GetServerConf().ConfigCenter, conf.Server.Name, s.Conf)
 }
 
