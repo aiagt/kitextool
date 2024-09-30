@@ -17,24 +17,23 @@ import (
 )
 
 const (
-	DefaultFileName   = "log/kitex.log"
 	DefaultMaxSize    = 10
 	DefaultMaxAge     = 3
 	DefaultMaxBackups = 50
 )
 
-type LoggerOption func()
+type LoggerOption func(*ktconf.ServerConf)
 
 var (
-	WithLogrus LoggerOption = func() {
+	WithLogrus LoggerOption = func(_ *ktconf.ServerConf) {
 		logger := kitexlogrus.NewLogger()
 		klog.SetLogger(logger)
 	}
-	WithZap LoggerOption = func() {
+	WithZap LoggerOption = func(_ *ktconf.ServerConf) {
 		logger := kitexzap.NewLogger()
 		klog.SetLogger(logger)
 	}
-	WithSlog LoggerOption = func() {
+	WithSlog LoggerOption = func(_ *ktconf.ServerConf) {
 		logger := kitexslog.NewLogger()
 		klog.SetLogger(logger)
 	}
@@ -42,12 +41,12 @@ var (
 
 func SetLogger(conf *ktconf.ServerConf, opts ...LoggerOption) {
 	for _, opt := range opts {
-		opt()
+		opt(conf)
 	}
 
 	confLog := conf.Log
 	if confLog.FileName == "" {
-		confLog.FileName = DefaultFileName
+		confLog.FileName = filepathOption(conf)
 	}
 
 	if confLog.MaxSize == 0 {
@@ -62,7 +61,7 @@ func SetLogger(conf *ktconf.ServerConf, opts ...LoggerOption) {
 		confLog.MaxBackups = DefaultMaxBackups
 	}
 
-	klog.SetLevel(KlogLevel(confLog.LogLevel()))
+	klog.SetLevel(KLogLevel(confLog.LogLevel()))
 	asyncWriter := &zapcore.BufferedWriteSyncer{
 		WS: zapcore.AddSync(&lumberjack.Logger{
 			Filename:   confLog.FileName,
@@ -72,6 +71,7 @@ func SetLogger(conf *ktconf.ServerConf, opts ...LoggerOption) {
 		}),
 		FlushInterval: time.Minute,
 	}
+
 	output := io.MultiWriter(os.Stdout, asyncWriter)
 	klog.SetOutput(output)
 	server.RegisterShutdownHook(func() {
@@ -79,7 +79,7 @@ func SetLogger(conf *ktconf.ServerConf, opts ...LoggerOption) {
 	})
 }
 
-func KlogLevel(level ktconf.LogLevel) klog.Level {
+func KLogLevel(level ktconf.LogLevel) klog.Level {
 	switch level {
 	case ktconf.LevelTrace:
 		return klog.LevelTrace

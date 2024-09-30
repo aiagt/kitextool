@@ -7,14 +7,16 @@ import (
 	"github.com/cloudwego/kitex/pkg/discovery"
 )
 
-type Resolver func(conf *ktconf.Resolver) discovery.Resolver
+type Resolver func(conf *ktconf.Resolver) []discovery.Resolver
 
 type Option struct {
 	resolver Resolver
 }
 
 func (o *Option) Apply(s *ktclient.KitexToolSuite, conf *ktconf.ClientConf) {
-	s.CliOpts = append(s.CliOpts, client.WithResolver(o.resolver(&conf.Resolver)))
+	for _, resolver := range o.resolver(&conf.Resolver) {
+		s.CliOpts = append(s.CliOpts, client.WithResolver(resolver))
+	}
 }
 
 func WithResolver(r Resolver) ktclient.Option {

@@ -7,7 +7,7 @@ import (
 	"github.com/cloudwego/kitex/server"
 )
 
-type Registry func(conf *ktconf.Registry) registry.Registry
+type Registry func(conf *ktconf.Registry) []registry.Registry
 
 type Option struct {
 	ktserver.EmptyOption
@@ -15,7 +15,9 @@ type Option struct {
 }
 
 func (o *Option) Apply(s *ktserver.KitexToolSuite, conf *ktconf.ServerConf) {
-	s.SvrOpts = append(s.SvrOpts, server.WithRegistry(o.registry(&conf.Registry)))
+	for _, r := range o.registry(&conf.Registry) {
+		s.SvrOpts = append(s.SvrOpts, server.WithRegistry(r))
+	}
 }
 
 func WithRegistry(r Registry) ktserver.Option {

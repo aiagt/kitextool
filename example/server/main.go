@@ -5,11 +5,14 @@ import (
 	"log"
 	"time"
 
+	ktcenter "github.com/aiagt/kitextool/conf/center"
+
+	ktregistry "github.com/aiagt/kitextool/option/server/registry"
+
 	ktconf "github.com/aiagt/kitextool/conf"
 	echo "github.com/aiagt/kitextool/example/kitex_gen/echo/echoservice"
 	ktdb "github.com/aiagt/kitextool/option/server/db"
 	ktrdb "github.com/aiagt/kitextool/option/server/redis"
-	ktregistry "github.com/aiagt/kitextool/option/server/registry"
 	ktserver "github.com/aiagt/kitextool/suite/server"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
@@ -33,7 +36,7 @@ var conf = new(ktconf.ServerConf)
 
 func init() {
 	// Load configuration content from a specified files
-	ktconf.LoadFiles(conf, "conf.yaml")
+	ktconf.LoadFiles(conf, "conf.yaml", "server/conf.yaml")
 }
 
 func main() {
@@ -43,10 +46,10 @@ func main() {
 		server.WithSuite(ktserver.NewKitexToolSuite(
 			// Global configuration of KitexTool suite
 			conf,
-			// Use nacos dynamic configuration, the default dataId is `{ServiceName}:config`
-			// ktserver.WithDynamicConfig(ktconf.NewNacosConfigCenter(nacos.Options{})),
-			// Use nacos as the registry
-			ktregistry.WithRegistry(ktregistry.NewNacosRegistry()),
+			// Use consul dynamic configuration
+			ktserver.WithDynamicConfig(ktcenter.WithConsulConfigCenter(nil)),
+			// Use consul as the registry
+			ktregistry.WithRegistry(ktregistry.NewConsulRegistry()),
 			// Introduce MySQL database into the project
 			ktdb.WithDB(ktdb.NewMySQLDial()),
 			// Introduce Redis into the project

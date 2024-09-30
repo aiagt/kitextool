@@ -24,7 +24,7 @@ func (d *ServerConf) ParseClientConf(data string) error {
 	return nil
 }
 
-func (d *ServerConf) GetClientConf() *ClientConf {
+func (d *ServerConf) GetClientConf(_ string) *ClientConf {
 	return nil
 }
 
@@ -46,6 +46,12 @@ type Registry struct {
 	Address  []string `yaml:"address"`
 	Username string   `yaml:"username"`
 	Password string   `yaml:"password"`
+}
+
+type CenterConf struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
+	Key  string `yaml:"key"`
 }
 
 type DB struct {

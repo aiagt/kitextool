@@ -11,10 +11,10 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
-var conf = new(ktconf.ClientConf)
+var conf = new(ktconf.MultiClientConf)
 
 func init() {
-	ktconf.LoadFiles(conf, "conf.yaml")
+	ktconf.LoadFiles(conf, "conf.yaml", "client/conf.yaml")
 }
 
 func main() {
@@ -22,9 +22,9 @@ func main() {
 		// Use the KitexTool suite in the client
 		client.WithSuite(ktclient.NewKitexToolSuite(
 			// Global configuration of KitexTool suite
-			conf,
-			// Use nacos for service discovery
-			ktresolver.WithResolver(ktresolver.NewNacosResolver),
+			conf.GetClientConf("echo"),
+			// Use consul for service discovery
+			ktresolver.WithResolver(ktresolver.NewConsulResolver),
 		)),
 	)
 

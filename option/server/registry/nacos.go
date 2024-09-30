@@ -4,6 +4,8 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/aiagt/kitextool/log"
+
 	ktconf "github.com/aiagt/kitextool/conf"
 	"github.com/cloudwego/kitex/pkg/registry"
 	nacosregistry "github.com/kitex-contrib/registry-nacos/registry"
@@ -13,46 +15,47 @@ import (
 )
 
 func NewNacosRegistry() Registry {
-	return func(conf *ktconf.Registry) registry.Registry {
-		if len(conf.Address) == 0 {
-			r, err := nacosregistry.NewDefaultNacosRegistry()
+	return func(conf *ktconf.Registry) []registry.Registry {
+		result := make([]registry.Registry, len(conf.Address))
+
+		for _, address := range conf.Address {
+			host, portStr, err := net.SplitHostPort(address)
 			if err != nil {
-				panic("service registry failed: " + err.Error())
+				log.Fatal(err)
 			}
 
-			return r
+			if host == "" {
+				host = "127.0.0.1"
+			}
+
+			port, err := strconv.ParseUint(portStr, 10, 64)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			sc := []constant.ServerConfig{
+				*constant.NewServerConfig(host, port),
+			}
+			cc := constant.ClientConfig{
+				TimeoutMs:           5000,
+				NotLoadCacheAtStart: true,
+				Username:            conf.Username,
+				Password:            conf.Password,
+			}
+
+			cli, err := clients.NewNamingClient(
+				vo.NacosClientParam{
+					ClientConfig:  &cc,
+					ServerConfigs: sc,
+				},
+			)
+			if err != nil {
+				log.Fatalf("service registry failed: %s", err.Error())
+			}
+
+			result = append(result, nacosregistry.NewNacosRegistry(cli))
 		}
 
-		host, portStr, err := net.SplitHostPort(conf.Address[0])
-		if err != nil {
-			panic(err)
-		}
-
-		if host == "" {
-			host = "127.0.0.1"
-		}
-
-		port, err := strconv.ParseUint(portStr, 10, 64)
-		if err != nil {
-			panic(err)
-		}
-
-		sc := []constant.ServerConfig{
-			*constant.NewServerConfig(host, port),
-		}
-		cc := constant.ClientConfig{
-			TimeoutMs:           5000,
-			NotLoadCacheAtStart: true,
-			Username:            conf.Username,
-			Password:            conf.Password,
-		}
-		cli, err := clients.NewNamingClient(
-			vo.NacosClientParam{
-				ClientConfig:  &cc,
-				ServerConfigs: sc,
-			},
-		)
-
-		return nacosregistry.NewNacosRegistry(cli)
+		return result
 	}
 }
