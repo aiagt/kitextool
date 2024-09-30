@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	ktcenter "github.com/aiagt/kitextool/conf/center"
 	"log"
 	"time"
 
@@ -44,10 +45,10 @@ func main() {
 		server.WithSuite(ktserver.NewKitexToolSuite(
 			// Global configuration of KitexTool suite
 			conf,
-			// Use nacos dynamic configuration, the default dataId is `{ServiceName}:config`
-			// ktserver.WithDynamicConfig(ktcenter.WithNacosConfigCenter(nil)),
-			// Use nacos as the registry
-			ktregistry.WithRegistry(ktregistry.NewNacosRegistry()),
+			// Use consul dynamic configuration
+			ktserver.WithDynamicConfig(ktcenter.WithConsulConfigCenter(nil)),
+			// Use consul as the registry
+			ktregistry.WithRegistry(ktregistry.NewConsulRegistry()),
 			// Introduce MySQL database into the project
 			ktdb.WithDB(ktdb.NewMySQLDial()),
 			// Introduce Redis into the project

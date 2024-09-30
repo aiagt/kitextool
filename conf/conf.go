@@ -10,7 +10,7 @@ type Conf interface {
 	ParseServerConf(string) error // parse the default config from the string content
 	GetServerConf() *ServerConf   // get the default config
 	ParseClientConf(string) error
-	GetClientConf() *ClientConf
+	GetClientConf(name string) *ClientConf
 }
 
 func LoadFiles(conf Conf, files ...string) {

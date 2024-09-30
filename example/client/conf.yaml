@@ -1,3 +1,4 @@
-resolver:
-  address:
-    - ":8848"
+echo:
+  resolver:
+    address:
+      - :8500

@@ -1,5 +1,30 @@
 package ktconf
 
+type MultiClientConf map[string]ClientConf
+
+func (m *MultiClientConf) ParseClientConf(data string) error {
+	if m == nil {
+		*m = make(MultiClientConf)
+	}
+	return Parse([]byte(data), m)
+}
+
+func (m *MultiClientConf) GetClientConf(name string) *ClientConf {
+	if c, ok := (*m)[name]; ok {
+		return &c
+	}
+
+	return nil
+}
+
+func (m *MultiClientConf) ParseServerConf(data string) error {
+	return nil
+}
+
+func (m *MultiClientConf) GetServerConf() *ServerConf {
+	return nil
+}
+
 type ClientConf struct {
 	Resolver Resolver `yaml:"resolver"`
 }
@@ -8,7 +33,7 @@ func (c *ClientConf) ParseClientConf(data string) error {
 	return Parse([]byte(data), c)
 }
 
-func (c *ClientConf) GetClientConf() *ClientConf {
+func (c *ClientConf) GetClientConf(_ string) *ClientConf {
 	return c
 }
 
