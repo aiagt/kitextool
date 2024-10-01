@@ -49,7 +49,7 @@ func (o *LogOption) SetLogger(conf *ktconf.ServerConf) {
 	utils.SetDefault(&confLog.MaxSize, DefaultMaxSize)
 	utils.SetDefault(
 		&confLog.FlushInterval,
-		utils.Ternary(ktconf.GetEnv() == ktconf.EnvProd, DefaultDevFlushInterval, DefaultProdFlushInterval),
+		utils.Ternary(ktconf.GetEnv() == ktconf.EnvProd, DefaultProdFlushInterval, DefaultDevFlushInterval),
 	)
 
 	klog.SetLevel(KLogLevel(confLog.LogLevel()))
