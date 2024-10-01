@@ -39,7 +39,7 @@ func (s *KitexToolSuite) Options() []server.Option {
 
 func NewKitexToolSuite(conf ktconf.Conf, opts ...Option) *KitexToolSuite {
 	suite := NewKitexToolEmptySuite(conf, opts...)
-	suite.opts = append(suite.opts, WithLogger())
+	// NOTE: add more default configuration items
 
 	return suite
 }

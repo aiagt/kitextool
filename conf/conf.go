@@ -27,3 +27,18 @@ func LoadFiles(conf Conf, files ...string) {
 		}
 	}
 }
+
+const (
+	EnvProd = "prod"
+	EnvDev  = "dev"
+	EnvTest = "test"
+)
+
+func GetEnv() string {
+	env := os.Getenv("GO_ENV")
+	if len(env) == 0 {
+		return EnvTest
+	}
+
+	return env
+}

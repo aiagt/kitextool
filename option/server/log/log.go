@@ -1,10 +1,15 @@
 package ktlog
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"time"
 
+	ktserver "github.com/aiagt/kitextool/suite/server"
+
+	"github.com/aiagt/kitextool/utils"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
 	kitexslog "github.com/kitex-contrib/obs-opentelemetry/logging/slog"
 	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
@@ -16,52 +21,39 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-const (
-	DefaultMaxSize    = 10
-	DefaultMaxAge     = 3
-	DefaultMaxBackups = 50
-)
+type LogOption struct {
+	ktserver.EmptyOption
+	Logger klog.FullLogger
+}
 
-type LoggerOption func(*ktconf.ServerConf)
+// WithLogger set the Logger through global config
+func WithLogger(logger klog.FullLogger) ktserver.Option {
+	return &LogOption{Logger: logger}
+}
 
-var (
-	WithLogrus LoggerOption = func(_ *ktconf.ServerConf) {
-		logger := kitexlogrus.NewLogger()
-		klog.SetLogger(logger)
-	}
-	WithZap LoggerOption = func(_ *ktconf.ServerConf) {
-		logger := kitexzap.NewLogger()
-		klog.SetLogger(logger)
-	}
-	WithSlog LoggerOption = func(_ *ktconf.ServerConf) {
-		logger := kitexslog.NewLogger()
-		klog.SetLogger(logger)
-	}
-)
+func (o *LogOption) Apply(_ *ktserver.KitexToolSuite, conf *ktconf.ServerConf) {
+	klog.SetLogger(o.Logger)
+	o.SetLogger(conf)
+}
 
-func SetLogger(conf *ktconf.ServerConf, opts ...LoggerOption) {
-	for _, opt := range opts {
-		opt(conf)
+func (o *LogOption) SetLogger(conf *ktconf.ServerConf) {
+	if conf.Log.EnableFile != nil && !*conf.Log.EnableFile {
+		return
 	}
 
 	confLog := conf.Log
-	if confLog.FileName == "" {
-		confLog.FileName = filepathOption(conf)
-	}
-
-	if confLog.MaxSize == 0 {
-		confLog.MaxSize = DefaultMaxSize
-	}
-
-	if confLog.MaxAge == 0 {
-		confLog.MaxAge = DefaultMaxAge
-	}
-
-	if confLog.MaxBackups == 0 {
-		confLog.MaxBackups = DefaultMaxBackups
-	}
+	utils.SetDefault(&confLog.FileName, logPath(conf.Server.Name))
+	utils.SetDefault(&confLog.MaxSize, DefaultMaxSize)
+	utils.SetDefault(&confLog.MaxAge, DefaultMaxAge)
+	utils.SetDefault(&confLog.MaxBackups, DefaultMaxBackups)
+	utils.SetDefault(&confLog.MaxSize, DefaultMaxSize)
+	utils.SetDefault(
+		&confLog.FlushInterval,
+		utils.Ternary(ktconf.GetEnv() == ktconf.EnvProd, DefaultProdFlushInterval, DefaultDevFlushInterval),
+	)
 
 	klog.SetLevel(KLogLevel(confLog.LogLevel()))
+
 	asyncWriter := &zapcore.BufferedWriteSyncer{
 		WS: zapcore.AddSync(&lumberjack.Logger{
 			Filename:   confLog.FileName,
@@ -69,7 +61,7 @@ func SetLogger(conf *ktconf.ServerConf, opts ...LoggerOption) {
 			MaxBackups: confLog.MaxBackups,
 			MaxAge:     confLog.MaxAge,
 		}),
-		FlushInterval: time.Minute,
+		FlushInterval: time.Duration(confLog.FlushInterval) * time.Second,
 	}
 
 	output := io.MultiWriter(os.Stdout, asyncWriter)
@@ -77,6 +69,31 @@ func SetLogger(conf *ktconf.ServerConf, opts ...LoggerOption) {
 	server.RegisterShutdownHook(func() {
 		_ = asyncWriter.Sync()
 	})
+}
+
+func NewLogrusLogger(opts ...kitexlogrus.Option) *kitexlogrus.Logger {
+	return kitexlogrus.NewLogger(opts...)
+}
+
+func NewZapLogger(opts ...kitexzap.Option) *kitexzap.Logger {
+	return kitexzap.NewLogger(opts...)
+}
+
+func NewSlogLogger(opts ...kitexslog.Option) *kitexslog.Logger {
+	return kitexslog.NewLogger(opts...)
+}
+
+const (
+	DefaultMaxSize           = 10
+	DefaultMaxAge            = 3
+	DefaultMaxBackups        = 50
+	DefaultDevFlushInterval  = 5
+	DefaultProdFlushInterval = 60
+)
+
+func logPath(svc string) string {
+	fileName := fmt.Sprintf("%s.log", svc)
+	return filepath.Join("log", fileName)
 }
 
 func KLogLevel(level ktconf.LogLevel) klog.Level {

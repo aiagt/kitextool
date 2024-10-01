@@ -35,11 +35,13 @@ type Server struct {
 }
 
 type Log struct {
-	Level      string `yaml:"level"`
-	FileName   string `yaml:"file_name"`
-	MaxSize    int    `yaml:"max_size"`
-	MaxBackups int    `yaml:"max_backups"`
-	MaxAge     int    `yaml:"max_age"`
+	Level         string `yaml:"level"`
+	FileName      string `yaml:"file_name"`
+	MaxSize       int    `yaml:"max_size"`
+	MaxBackups    int    `yaml:"max_backups"`
+	MaxAge        int    `yaml:"max_age"`
+	EnableFile    *bool  `yaml:"enable_file"`
+	FlushInterval int    `yaml:"flush_interval"`
 }
 
 type Registry struct {

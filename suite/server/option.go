@@ -3,7 +3,6 @@ package ktserver
 import (
 	ktconf "github.com/aiagt/kitextool/conf"
 	ktcenter "github.com/aiagt/kitextool/conf/center"
-	ktlog "github.com/aiagt/kitextool/option/server/log"
 )
 
 type Option interface {
@@ -25,20 +24,6 @@ func (o EmptyOption) Apply(s *KitexToolSuite, conf *ktconf.ServerConf) {}
 
 func (o EmptyOption) Callback() ServerCallback {
 	return func(conf *ktconf.ServerConf) {}
-}
-
-type LogOption struct {
-	EmptyOption
-	opts []ktlog.LoggerOption
-}
-
-func (o LogOption) Apply(s *KitexToolSuite, conf *ktconf.ServerConf) {
-	ktlog.SetLogger(conf, o.opts...)
-}
-
-// WithLogger set the logger through global config
-func WithLogger(opts ...ktlog.LoggerOption) Option {
-	return LogOption{opts: opts}
 }
 
 type ConfigOption struct {
